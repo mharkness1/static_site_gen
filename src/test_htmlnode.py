@@ -27,7 +27,7 @@ class TestHTMLNode(unittest.TestCase):
         node = HTMLNode("a", "This is a link", None,{
             "href": "https://www.google.com",
         })
-        self.assertEqual(node.props_to_html(), 'href="https://www.google.com"')
+        self.assertEqual(node.props_to_html(), ' href="https://www.google.com"')
 
     def test_eq_2(self):
         node = HTMLNode("p", "paragraph", [])

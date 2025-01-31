@@ -1,6 +1,6 @@
 import unittest
 from textnode import TextNode, TextType
-from delimiter import split_node_delimiter
+from delimiter import split_node_delimiter, extract_markdown_images, extract_markdown_links
 
 
 class TestDelimiter(unittest.TestCase):
@@ -60,13 +60,6 @@ class TestDelimiter(unittest.TestCase):
         self.assertEqual(len(result), 3)
         self.assertEqual(result[1].text, "")
 
-
 if __name__ == "__main__":
     unittest.main()
-
-
-
-# Empty text between delimiters
-#node = TextNode("hello `` world", TextType.NORMAL)
-#result = split_node_delimiter([node], "`", TextType.CODE)
 

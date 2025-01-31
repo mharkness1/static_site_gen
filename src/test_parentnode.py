@@ -86,3 +86,6 @@ class TestParentNode(unittest.TestCase):
             LeafNode("i", "Italic")
         ])
         self.assertEqual(node.to_html(),'<p><b>Bold</b>Normal<i>Italic</i></p>')
+
+if __name__ == "__main__":
+    unittest.main()

@@ -28,3 +28,6 @@ class TestLeafNode(unittest.TestCase):
     def test_leaf_empty_prop_dict(self):
         leaf = LeafNode("p","Paragraph",{})
         self.assertEqual(leaf.to_html(), "<p>Paragraph</p>")
+
+if __name__ == "__main__":
+    unittest.main()

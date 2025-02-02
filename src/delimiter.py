@@ -13,6 +13,11 @@ def split_node_delimiter(old_nodes, delimiter, text_type):
             new_nodes.append(node)
             continue
         
+        # Handles conflict between unordered lists starting with * and italics that would raise syntax error.
+        if node.text.lstrip().startswith("* "):
+            new_nodes.append(node)
+            continue
+
         split_node = node.text.split(delimiter)
         # any split will always result in an odd number of list elements (before markdown, after markdown, markdown).
         # Thus, if there is an even number of elements, there must have been a markdown error.
@@ -22,10 +27,11 @@ def split_node_delimiter(old_nodes, delimiter, text_type):
         for i in range(0, len(split_node)):
             # iterate over the entire split node. For even elements, the text type is normal. [before][markdown][after][mardown]...
             # if a node begins with markdown an empty string begins the list. if not even, then its markdown and all appended.
-            if i % 2 == 0:
+            if i % 2 == 0 and split_node[i] != "":
                 new_nodes.append(TextNode(split_node[i], TextType.NORMAL))
-            else:
+            elif split_node[i] != "":
                 new_nodes.append(TextNode(split_node[i], text_type))
+
     return new_nodes
 
 def split_nodes_image(old_nodes):
@@ -59,8 +65,7 @@ def split_nodes_image(old_nodes):
             current_text = parts[1] if len(parts) > 1 else ""
 
         # Add any text remaning to the new node once all images have been iterated over.
-        if current_text:
-            new_nodes.append(TextNode(current_text, TextType.NORMAL))
+        new_nodes.append(TextNode(current_text, TextType.NORMAL))
 
     return new_nodes
 
@@ -83,17 +88,17 @@ def split_nodes_link(old_nodes):
         current_text = node.text
         # iterate over the already returned tuples in the links.
         for link_text, link_url in links:
-            # Split around the markdown link syntax
+            # Split around the markdown link syntax.
             parts = current_text.split(f"[{link_text}]({link_url})", 1)
             
-            # Add the text before the link if it's not empty
+            # Add the text before the link.
             if parts[0]:
                 new_nodes.append(TextNode(parts[0], TextType.NORMAL))
             
-            # Add the link node
+            # Add the link node.
             new_nodes.append(TextNode(link_text, TextType.LINK, link_url))
             
-            # Update current_text to what remains
+            # Update current_text to what remains.
             current_text = parts[1] if len(parts) > 1 else ""
 
         # Add any remaining text
@@ -111,3 +116,13 @@ def extract_markdown_links(text):
     matches = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     # returns a list of tuples of each of the groups (), for texts this is (text, url)
     return matches
+
+def text_to_textnodes(text):
+    converted_text = [TextNode(text, TextType.NORMAL)]
+    converted_text = split_nodes_link(converted_text)
+    converted_text = split_nodes_image(converted_text)
+    converted_text = split_node_delimiter(converted_text, "**", TextType.BOLD)
+    converted_text = split_node_delimiter(converted_text, "*", TextType.ITALIC)
+    converted_text = split_node_delimiter(converted_text, "`", TextType.CODE)
+
+    return converted_text

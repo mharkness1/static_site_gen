@@ -1,6 +1,7 @@
 from enum import Enum
-from htmlnode import LeafNode
+from htmlnode import LeafNode, HTMLNode
 
+# Enforces typing for textnodes (the core componenent of the conversion system)
 class TextType(Enum):
     NORMAL = "normal"
     BOLD = "bold"
@@ -20,8 +21,13 @@ class TextNode:
     
     def __repr__(self):
         return f"TextNode({self.text}, {self.text_type.value}, {self.url})"
-    
+
+# Accurately tags a Leafnode with the relevant HTML info and props.    
 def text_node_to_html_node(text_node):
+    if isinstance(text_node, list):
+        # If it's a list of text nodes, wrap them in a parent node
+        return HTMLNode(None, None, [text_node_to_html_node(node) for node in text_node])
+    
     if text_node.text_type == TextType.NORMAL:
         return LeafNode(None, text_node.text, None)
     elif text_node.text_type == TextType.BOLD:

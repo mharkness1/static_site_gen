@@ -18,7 +18,7 @@ class TestDelimiter(unittest.TestCase):
     def test_delim_multiple_delimiters(self):
         node = TextNode("hello `code` and `more code`", TextType.NORMAL)
         result = split_node_delimiter([node], "`", TextType.CODE)
-        self.assertEqual(len(result), 5)
+        self.assertEqual(len(result), 4)
 
     def test_delim_no_delimiter(self):
         node = TextNode("just plain text", TextType.NORMAL)
@@ -57,8 +57,7 @@ class TestDelimiter(unittest.TestCase):
     def test_delim_no_text_between_case(self):
         node = TextNode("hello `` world", TextType.NORMAL)
         result = split_node_delimiter([node], "`", TextType.CODE)
-        self.assertEqual(len(result), 3)
-        self.assertEqual(result[1].text, "")
+        self.assertEqual(len(result), 2)
 
 if __name__ == "__main__":
     unittest.main()

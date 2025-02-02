@@ -7,7 +7,28 @@ class HTMLNode:
 
     # Defined method for child classes to overwrite, with default error for failed implementation for inherited classes.
     def to_html(self):
-        raise NotImplementedError
+        if self.tag is None:
+            if self.value is not None:
+                return self.value
+            if self.children:
+                return "".join(child.to_html() for child in self.children)
+            return ""
+        
+        result = f"<{self.tag}>"
+
+        if self.value:
+            if isinstance(self.value, HTMLNode):
+                result += self.value.to_html()
+            else:
+                result += self.value
+
+        if self.children:
+            for child in self.children:
+                result += child.to_html()
+        
+        result += f"</{self.tag}>"
+
+        return result
     
     # Formats the props receieved from a node. With the necessary spacing. Props is a dictionary, needs converted to string.
     def props_to_html(self):
@@ -39,10 +60,10 @@ class LeafNode(HTMLNode):
     def __init__(self, tag, value, props=None):
         super().__init__(tag, value, [], props)
 
-    #C onvert Leafnode to HTML string. Checks that is has a value as all leaf nodes must.
+    # Convert Leafnode to HTML string. Checks that is has a value as all leaf nodes must.
     def to_html(self):
-        if not self.value:
-            raise ValueError
+        if self.value is None:
+            raise ValueError(f"{self.tag} and props: {self.props}")
         # If no tag, then the line is just standard text and returns the value only.
         if not self.tag:
             return self.value
@@ -67,7 +88,6 @@ class ParentNode(HTMLNode):
             raise ValueError("Parent node must have children")
         
         # Potentially recurssively calls the to_html method on the children to convert into strings which are then embedded.
-        # TODO check beahviour with nested parents and what the input is actually like into this.
         children_html = ""
         for child in self.children:
                 children_html += child.to_html()
